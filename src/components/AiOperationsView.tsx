@@ -30,12 +30,12 @@ const CATEGORY_ACTION: Record<
   CorporateOpportunity["category"],
   { rowLabel: string; kind: "view"; view: ActiveView } | { rowLabel: string; kind: "section" }
 > = {
-  catalog_readiness:  { rowLabel: "Review source issue", kind: "view",    view: "catalog-readiness" },
-  inventory_risk:     { rowLabel: "Review source issue", kind: "view",    view: "inventory-signals" },
-  review_return_theme:{ rowLabel: "Review source issue", kind: "section" },
-  training_gap:       { rowLabel: "Review source issue", kind: "section" },
-  demand_gap:         { rowLabel: "Review source issue", kind: "section" },
-  governance:         { rowLabel: "Review governance item", kind: "view", view: "governance"        },
+  catalog_readiness:  { rowLabel: "Review source", kind: "view",    view: "catalog-readiness" },
+  inventory_risk:     { rowLabel: "Review source", kind: "view",    view: "inventory-signals" },
+  review_return_theme:{ rowLabel: "Review source", kind: "section" },
+  training_gap:       { rowLabel: "Review source", kind: "section" },
+  demand_gap:         { rowLabel: "Review source", kind: "section" },
+  governance:         { rowLabel: "Review item", kind: "view", view: "governance"        },
 };
 
 type AiOperationsViewProps = {
