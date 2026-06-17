@@ -6,13 +6,13 @@ CrewGuide AI is a demo internal workflow shell for BRUNT. It starts with one con
 
 Store reps should not have to manually search the full catalog every time a customer describes a jobsite need, budget, safety requirement, or comfort preference. As the catalog grows, product-fit questions get harder to answer quickly and consistently.
 
-At the same time, internal teams can now prototype AI tools quickly with Claude Code. That is useful, but without a shared review path those prototypes can become one-off workflows with unclear data access, no evals, no ownership, and no governance.
+At the same time, internal teams can now prototype AI tools quickly with Claude Code. That is useful, but without a shared review path those prototypes can become one-off workflows with unclear data access, no evaluations, no ownership, and no governance.
 
 ## Solution
 
 CrewGuide turns a natural-language customer need into grounded product guidance. It extracts constraints, scores a curated public BRUNT catalog slice, explains why each product fits, shows tradeoffs, asks clarifying questions when evidence is weak, and logs friction signals for Business Ops.
 
-The Store workflow helps the rep in the moment. The Business Ops workflow shows the operating layer around AI adoption: use case intake, source-system mapping, ownership, eval expectations, governance status, and production readiness.
+The Store workflow helps the rep in the moment. The Business Ops workflow shows the operating layer around AI adoption: use case intake, source-system mapping, ownership, evaluation expectations, governance status, and production readiness.
 
 The product names, links, and images are based on public BRUNT catalog examples. Product metadata, inventory signals, review themes, and operational signals are seeded for the demo and should be replaced with approved internal sources in production.
 
@@ -20,7 +20,7 @@ The product names, links, and images are based on public BRUNT catalog examples.
 
 This is not just catalog search. It is a narrow, measurable AI workflow with a production path.
 
-The rep gets faster product guidance. Business Ops gets visibility into repeated customer needs, missing metadata, unanswered questions, and potential workflow opportunities. Engineering gets a safer pattern for AI development: ground the assistant in approved data, expose the reasoning, log friction, and expand scope only after evals and governance are in place.
+The rep gets faster product guidance. Business Ops gets visibility into repeated customer needs, missing metadata, unanswered questions, and potential workflow opportunities. Engineering gets a safer pattern for AI development: ground the assistant in approved data, expose the reasoning, log friction, and expand scope only after evaluations and governance are in place.
 
 ## Core concept
 
