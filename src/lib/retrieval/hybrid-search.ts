@@ -18,6 +18,29 @@ const ATTRIBUTE_FIELDS: Array<keyof ExtractedConstraints> = [
 ];
 
 /**
+ * Returns true when the extracted constraints contain at least one
+ * product-relevant signal. Queries with no signals — greetings, help-only
+ * prompts, or underspecified asks like "show me a boot" — produce all-empty
+ * constraints and should short-circuit to a clarifying fallback rather than
+ * attempting a scoring pass against the full catalog.
+ */
+function hasMeaningfulConstraints(constraints: ExtractedConstraints): boolean {
+  return (
+    constraints.waterproof !== undefined ||
+    constraints.safetyToe !== undefined ||
+    constraints.height !== undefined ||
+    constraints.sole !== undefined ||
+    constraints.pullOn !== undefined ||
+    constraints.welted !== undefined ||
+    constraints.maxPrice !== undefined ||
+    constraints.useCases.length > 0 ||
+    constraints.comparisonNames.length > 0 ||
+    constraints.mentionsWeight ||
+    constraints.asksForSafety
+  );
+}
+
+/**
  * The Rep Assistant's primary entry point for product retrieval.
  *
  * Orchestrates the full retrieval pipeline: normalizes the raw query into
@@ -25,6 +48,12 @@ const ATTRIBUTE_FIELDS: Array<keyof ExtractedConstraints> = [
  * confidence, and decides whether to surface a recommendation or trigger a
  * clarifying-question fallback. All logic is deterministic and runs against
  * seeded catalog data — no external service is called.
+ *
+ * When `hasMeaningfulConstraints` is false (greetings, help-only prompts,
+ * or underspecified asks with no product signals), the function short-circuits
+ * to a fallback result before the confidence/shouldFallback path runs. Product
+ * records are still scored and included in `topProducts` so the Evidence Panel
+ * can cite them.
  *
  * @param query - Raw customer query string from the rep.
  * @returns A `RecommendationResult` with the top-scored products, confidence,
@@ -36,6 +65,21 @@ export function recommendProducts(query: string): RecommendationResult {
   const scores = scoreProducts(query, constraints);
   const topProducts = scores.slice(0, 3);
   const confidence = computeConfidence(topProducts);
+
+  if (!hasMeaningfulConstraints(constraints)) {
+    return {
+      query,
+      constraints,
+      topProducts,
+      confidence,
+      fallback: true,
+      fallbackReason: "The request did not include any product-relevant needs.",
+      clarifyingQuestion:
+        "Tell me what the customer needs and I'll recommend the closest BRUNT options. Try including job type, waterproofing, toe type, height, budget, or comfort needs.",
+      frictionReason: "ambiguous_request"
+    };
+  }
+
   const fallback = shouldFallback(constraints, topProducts, confidence);
   const fallbackReason = getFallbackReason(constraints, topProducts, confidence);
 

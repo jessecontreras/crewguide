@@ -109,7 +109,9 @@ export function CrewGuideApp({ initialView }: CrewGuideAppProps) {
 
       const payload = (await response.json()) as AskResponse;
       setAskResponse(payload);
-      setExpandedProductId(payload.result.topProducts[0]?.product.id ?? null);
+      setExpandedProductId(
+        payload.result.fallback ? null : (payload.result.topProducts[0]?.product.id ?? null)
+      );
       setImageModalScore(null);
       if (payload.frictionEvent) {
         setFrictionLogged(true);
@@ -209,20 +211,22 @@ export function CrewGuideApp({ initialView }: CrewGuideAppProps) {
                     ) : (
                       <p className="summary">{askResponse.answer.summary}</p>
                     )}
-                    <div className="product-list">
-                      {topProducts.map((score, index) => (
-                        <RecommendationCard
-                          key={score.product.id}
-                          score={score}
-                          answer={askResponse.answer}
-                          rank={index}
-                          expanded={expandedProductId === score.product.id}
-                          onExpand={() => setExpandedProductId(score.product.id)}
-                          onCollapse={() => setExpandedProductId(null)}
-                          onOpenImage={() => setImageModalScore(score)}
-                        />
-                      ))}
-                    </div>
+                    {!askResponse.result.fallback ? (
+                      <div className="product-list">
+                        {topProducts.map((score, index) => (
+                          <RecommendationCard
+                            key={score.product.id}
+                            score={score}
+                            answer={askResponse.answer}
+                            rank={index}
+                            expanded={expandedProductId === score.product.id}
+                            onExpand={() => setExpandedProductId(score.product.id)}
+                            onCollapse={() => setExpandedProductId(null)}
+                            onOpenImage={() => setImageModalScore(score)}
+                          />
+                        ))}
+                      </div>
+                    ) : null}
 
                     <RepFeedback
                       query={askResponse.result.query}
