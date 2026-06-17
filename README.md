@@ -164,8 +164,11 @@ npm run dev
 
 ## Example prompts
 Customer is an electrician. Needs waterproof, comp toe, 6 inch, under $180. What should I show them?
+
 Someone works outdoors in mud and wants waterproof but does not need safety toe. What are good options?
+
 Compare Marin Waterproof Comp Toe and Ryng Waterproof Comp Toe for ladder work.
+
 What product should I recommend for someone who wants a durable boot but complains about heavy footwear?
 
 ## What I would build next
