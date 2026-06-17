@@ -6,7 +6,7 @@ The Store Rep Assistant is the first concrete workflow. The larger idea is the o
 
 ## Live demo
 
-- Live demo: [[Vercel link]](https://crewguide.vercel.app)
+- Live demo: [Vercel link](https://crewguide.vercel.app)
 
 ## What this demo is
 
