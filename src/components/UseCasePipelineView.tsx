@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ACTION_MODE_LABEL,
   APPROVED_WORKFLOWS,
@@ -14,6 +14,18 @@ import {
   type PipelineIdea,
 } from "@/lib/intelligence/use-case-pipeline";
 import { UseCaseReviewWorkspace } from "./UseCaseReviewWorkspace";
+
+function pushCaseParam(caseId: string) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("case", caseId);
+  window.history.pushState(null, "", url.toString());
+}
+
+function replaceCaseParam() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("case");
+  window.history.replaceState(null, "", url.toString());
+}
 
 const CHECKLIST_ITEMS = [
   "Clear business owner",
@@ -31,11 +43,38 @@ const CHECKLIST_ITEMS = [
 export function UseCasePipelineView() {
   const [selectedIdea, setSelectedIdea] = useState<PipelineIdea | null>(null);
 
+  useEffect(() => {
+    function syncCase() {
+      const params = new URLSearchParams(window.location.search);
+      const caseId = params.get("case");
+      if (caseId) {
+        const idea = PIPELINE_IDEAS.find((item) => item.id === caseId);
+        if (idea) {
+          setSelectedIdea(idea);
+        } else {
+          setSelectedIdea(null);
+          const url = new URL(window.location.href);
+          url.searchParams.delete("case");
+          window.history.replaceState(null, "", url.toString());
+        }
+      } else {
+        setSelectedIdea(null);
+      }
+    }
+
+    syncCase();
+    window.addEventListener("popstate", syncCase);
+    return () => window.removeEventListener("popstate", syncCase);
+  }, []);
+
   if (selectedIdea) {
     return (
       <UseCaseReviewWorkspace
         idea={selectedIdea}
-        onBack={() => setSelectedIdea(null)}
+        onBack={() => {
+          setSelectedIdea(null);
+          replaceCaseParam();
+        }}
       />
     );
   }
@@ -166,7 +205,10 @@ export function UseCasePipelineView() {
                 <button
                   type="button"
                   className="queue-cta queue-cta-primary"
-                  onClick={() => setSelectedIdea(idea)}
+                  onClick={() => {
+                    setSelectedIdea(idea);
+                    pushCaseParam(idea.id);
+                  }}
                 >
                   View
                 </button>

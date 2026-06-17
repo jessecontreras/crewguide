@@ -41,6 +41,57 @@ const INITIAL_ACCESS_MODE: Record<CrewGuideAppProps["initialView"], AccessMode> 
   corporate: "business-ops"
 };
 
+const MODE_TO_PARAM: Record<AccessMode, string> = {
+  store: "store",
+  "business-ops": "business"
+};
+
+const VIEW_TO_PARAM: Record<ActiveView, string> = {
+  rep: "rep",
+  "use-case-pipeline": "pipeline",
+  "ai-operations": "ai-ops",
+  "catalog-readiness": "catalog",
+  "inventory-signals": "inventory",
+  governance: "governance"
+};
+
+const PARAM_TO_MODE: Record<string, AccessMode> = {
+  store: "store",
+  business: "business-ops"
+};
+
+const PARAM_TO_VIEW: Record<string, ActiveView> = {
+  rep: "rep",
+  pipeline: "use-case-pipeline",
+  "ai-ops": "ai-operations",
+  catalog: "catalog-readiness",
+  inventory: "inventory-signals",
+  governance: "governance"
+};
+
+function pushNavState(mode: AccessMode, view: ActiveView) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("mode", MODE_TO_PARAM[mode]);
+  url.searchParams.set("view", VIEW_TO_PARAM[view]);
+  if (view !== "use-case-pipeline") url.searchParams.delete("case");
+  window.history.pushState(null, "", url.toString());
+}
+
+function replaceNavState(mode: AccessMode, view: ActiveView) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("mode", MODE_TO_PARAM[mode]);
+  url.searchParams.set("view", VIEW_TO_PARAM[view]);
+  if (view !== "use-case-pipeline") url.searchParams.delete("case");
+  window.history.replaceState(null, "", url.toString());
+}
+
+function isViewValidForMode(view: ActiveView, mode: AccessMode): boolean {
+  return NAV_ITEMS.some((item) => item.id === view && item.modes.includes(mode));
+}
+
+function getModeForView(view: ActiveView): AccessMode {
+  return NAV_ITEMS.find((item) => item.id === view)?.modes[0] ?? "store";
+}
 
 export function CrewGuideApp({ initialView }: CrewGuideAppProps) {
   const [accessMode, setAccessMode] = useState<AccessMode>(INITIAL_ACCESS_MODE[initialView]);
@@ -71,12 +122,19 @@ export function CrewGuideApp({ initialView }: CrewGuideAppProps) {
     if (mode === accessMode) {
       return;
     }
+    const defaultView = DEFAULT_VIEW_FOR_MODE[mode];
     setAccessMode(mode);
-    setActiveView(DEFAULT_VIEW_FOR_MODE[mode]);
+    setActiveView(defaultView);
+    pushNavState(mode, defaultView);
   }
 
   function handleNavigate(view: ActiveView) {
+    const targetMode = getModeForView(view);
+    if (targetMode !== accessMode) {
+      setAccessMode(targetMode);
+    }
     setActiveView(view);
+    pushNavState(targetMode, view);
   }
 
   async function refreshFeedback() {
@@ -90,6 +148,43 @@ export function CrewGuideApp({ initialView }: CrewGuideAppProps) {
   useEffect(() => {
     refreshFeedback().catch(() => setFeedbackLoading(false));
   }, []);
+
+  useEffect(() => {
+    function syncFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const modeParam = params.get("mode");
+      const viewParam = params.get("view");
+      const mode: AccessMode | undefined = modeParam ? PARAM_TO_MODE[modeParam] : undefined;
+      const view: ActiveView | undefined = viewParam ? PARAM_TO_VIEW[viewParam] : undefined;
+      const defaultMode = INITIAL_ACCESS_MODE[initialView];
+      const defaultView = isViewValidForMode(initialView as ActiveView, defaultMode)
+        ? (initialView as ActiveView)
+        : DEFAULT_VIEW_FOR_MODE[defaultMode];
+
+      if (mode && view && isViewValidForMode(view, mode)) {
+        setAccessMode(mode);
+        setActiveView(view);
+      } else if (mode && (!view || !isViewValidForMode(view, mode))) {
+        const safeView = DEFAULT_VIEW_FOR_MODE[mode];
+        setAccessMode(mode);
+        setActiveView(safeView);
+        replaceNavState(mode, safeView);
+      } else if (!mode && view) {
+        const canonicalMode = getModeForView(view);
+        setAccessMode(canonicalMode);
+        setActiveView(view);
+        replaceNavState(canonicalMode, view);
+      } else {
+        setAccessMode(defaultMode);
+        setActiveView(defaultView);
+        replaceNavState(defaultMode, defaultView);
+      }
+    }
+
+    syncFromUrl();
+    window.addEventListener("popstate", syncFromUrl);
+    return () => window.removeEventListener("popstate", syncFromUrl);
+  }, [initialView]);
 
   async function handleAsk(query: string) {
     setLoading(true);
