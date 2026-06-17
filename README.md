@@ -19,7 +19,7 @@ The goal is not to claim this is production-ready. The goal is to show the shape
 
 ## Why I built it
 
-I built this after conversations with Josh and Dylan. The store rep product guidance problem felt like a useful first workflow: a rep should not have to dig through the full catalog to answer a customer’s product-fit question.
+I built this after conversations with Joe McLauchlan and Dylan O'Connor. The store rep product guidance problem felt like a useful first workflow: a rep should not have to dig through the full catalog to answer a customer’s product-fit question.
 
 The second idea came from the Claude Code discussion. Claude Code is great for fast internal prototypes, but production workflows still need structure. Without a shared path, prototypes can end up with unclear ownership, unclear data access, no evals, no approval gates, and no monitoring.
 
